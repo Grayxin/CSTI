@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSTI 公务员性格测试</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- 首页视图 -->
+    <div id="home" class="view active">
+      <div class="mountain-bg"></div>
+      <div class="mountain-bg mountain-2"></div>
+      <div class="mountain-bg mountain-3"></div>
+      <div class="home-content">
+        <h1 class="home-title">CSTI</h1>
+        <p class="home-subtitle">公务员性格测试</p>
+        <p class="home-desc">究竟是天选卷王还是摸鱼刺客？<br>精准测算你的体制内生存段位<br>测测你背锅的姿势有多优雅</p>
+        <button class="start-btn" onclick="startQuiz()">
+          <span>开始测试</span>
+        </button>
+      </div>
+      <div class="home-footer">
+        <p>本测试仅供娱乐，请勿当真</p>
+      </div>
+    </div>
+
+    <!-- 答题视图 -->
+    <div id="quiz" class="view">
+      <div class="quiz-header">
+        <button class="back-btn" id="backBtn" onclick="prevQuestion()">
+          ← 返回上一题
+        </button>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text">
+          <span id="questionNum">1</span> / 30
+        </div>
+      </div>
+      <div class="quiz-card fade-in">
+        <div class="scene-tag" id="sceneTag">场景一：职场生存日常</div>
+        <h2 class="question-text" id="questionText">题目内容</h2>
+        <div class="options-container" id="optionsContainer">
+          <!-- 选项动态生成 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 结果视图 -->
+    <div id="result" class="view">
+      <div class="result-card fade-in">
+        <div class="result-header">
+          <div class="result-icon" id="resultIcon">
+            <!-- Emoji图标占位 -->
+          </div>
+          <h2 class="result-title" id="resultTitle">性格名称</h2>
+          <p class="result-code" id="resultCode">CODE</p>
+        </div>
+        <div class="result-desc" id="resultDesc">
+          <!-- 性格解析 -->
+        </div>
+        <div class="radar-container">
+          <canvas id="radarChart"></canvas>
+        </div>
+        <div class="scores-display" id="scoresDisplay">
+          <!-- 各维度得分 -->
+        </div>
+        <button class="restart-btn" onclick="restartQuiz()">
+          <span>重新测试</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
