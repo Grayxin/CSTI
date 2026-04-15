@@ -498,13 +498,34 @@ let shuffledQuestions = [];  // 洗牌后的题目数组
 
 // ========== 核心函数 ==========
 
-// Fisher-Yates 洗牌算法（深拷贝并打乱顺序）
+// Fisher-Yates 洗牌算法（按场景分组洗牌，保持场景顺序）
 function shuffleQuestions() {
-  shuffledQuestions = questions.map(q => ({ ...q, options: q.options.map(o => ({ ...o })) }));
-  for (let i = shuffledQuestions.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
-  }
+  // 1. 按 scene 字段分组
+  const sceneGroups = {};
+  questions.forEach(q => {
+    if (!sceneGroups[q.scene]) {
+      sceneGroups[q.scene] = [];
+    }
+    sceneGroups[q.scene].push({ ...q, options: q.options.map(o => ({ ...o })) });
+  });
+
+  // 2. 获取场景列表（保持原始顺序）
+  const sceneOrder = questions.map(q => q.scene).filter((scene, idx, arr) => arr.indexOf(scene) === idx);
+
+  // 3. 对每个分组内部进行 Fisher-Yates 洗牌
+  sceneOrder.forEach(scene => {
+    const group = sceneGroups[scene];
+    for (let i = group.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [group[i], group[j]] = [group[j], group[i]];
+    }
+  });
+
+  // 4. 按场景顺序拼接所有分组
+  shuffledQuestions = [];
+  sceneOrder.forEach(scene => {
+    shuffledQuestions = shuffledQuestions.concat(sceneGroups[scene]);
+  });
 }
 
 // 开始测试
@@ -676,9 +697,9 @@ function calculateResult() {
 
 // 渲染结果页
 function renderResult(result) {
-  // 更新性格信息
-  document.getElementById('resultTitle').textContent = result.personality.name;
-  document.getElementById('resultCode').textContent = result.type === "彩蛋" ? "彩蛋触发！" : (result.type === "突变" ? `突变：${result.mutationDim}≥12` : result.code);
+  // 更新性格信息（反转：大标题为英文代码，小标题为中文名称）
+  document.getElementById('resultTitle').textContent = result.type === "彩蛋" ? "彩蛋触发！" : (result.type === "突变" ? `E-${result.mutationDim}` : result.code);
+  document.getElementById('resultCode').textContent = result.personality.name;
   document.getElementById('resultDesc').textContent = result.personality.desc;
 
   // 更新人物立绘图片
@@ -712,7 +733,7 @@ function updateResultIcon(result) {
   iconContainer.innerHTML = `<img src="${imagePath}" alt="${result.personality.name}" class="character-img">`;
 }
 
-// 渲染雷达图（动态max值，防止溢出）
+// 渲染雷达图（动态max值，防止溢出，带数值多彩标签）
 function renderRadarChart(result) {
   const ctx = document.getElementById('radarChart').getContext('2d');
 
@@ -721,18 +742,23 @@ function renderRadarChart(result) {
     radarChart.destroy();
   }
 
+  // 多彩标签颜色数组（暖色调错开搭配）
+  const labelColors = ['#e67e22', '#c0392b', '#2c3e50', '#8e44ad', '#27ae60', '#d35400', '#16a085', '#e74c3c'];
+
   // 准备数据：取每个对抗池胜出维度的得分
   let data;
+  let colors;
   if (result.isMutation) {
-    // 突变人格：显示所有8维度
+    // 突变人格：显示所有8维度，带数值
     data = {
-      labels: ['L满载', 'D枯竭', 'O圆滑', 'S耿直', 'N麻木', 'F易碎', 'P入世', 'A出世'],
+      labels: ['L卷王', 'D摸鱼', 'O圆滑', 'S耿直', 'N麻木', 'F易碎', 'P入世', 'A出世'],
       values: [scores.L, scores.D, scores.O, scores.S, scores.N, scores.F, scores.P, scores.A]
     };
+    colors = labelColors;
   } else {
-    // 常规人格：显示4维度对抗结果
+    // 常规人格：显示4维度对抗结果，带数值
     data = {
-      labels: ['精力(L/D)', '社交(O/S)', '情绪(N/F)', '权力(P/A)'],
+      labels: ['精力', '社交', '情绪', '权力'],
       values: [
         Math.max(scores.L, scores.D),
         Math.max(scores.O, scores.S),
@@ -740,6 +766,7 @@ function renderRadarChart(result) {
         Math.max(scores.P, scores.A)
       ]
     };
+    colors = labelColors.slice(0, 4);
   }
 
   // 动态计算max值，防止溢出
@@ -784,10 +811,15 @@ function renderRadarChart(result) {
             color: 'rgba(243, 156, 18, 0.2)'
           },
           pointLabels: {
-            color: '#2c3e50',
+            // 多行显示：中文维度 + 数值
+            callback: function(value, index) {
+              return [value, data.values[index]];
+            },
+            // 多彩标签颜色
+            color: colors,
             font: {
-              size: 11,
-              weight: '500'
+              size: 12,
+              weight: 'bold'
             }
           }
         }
@@ -801,62 +833,69 @@ function renderRadarChart(result) {
   });
 }
 
-// 渲染各维度得分显示
+// 渲染各维度得分显示（带中文释义）
 function renderScoresDisplay(result) {
   const container = document.getElementById('scoresDisplay');
+
+  // 维度中文释义映射字典
+  const dimNames = { L: '卷王', D: '摸鱼', O: '圆滑', S: '耿直', N: '麻木', F: '易碎', P: '入世', A: '出世' };
 
   let html = '';
   if (result.isMutation) {
     html = `
       <div class="score-item">
-        <div class="score-label">L</div>
+        <div class="score-label">L ${dimNames.L}</div>
         <div class="score-value">${scores.L}</div>
       </div>
       <div class="score-item">
-        <div class="score-label">D</div>
+        <div class="score-label">D ${dimNames.D}</div>
         <div class="score-value">${scores.D}</div>
       </div>
       <div class="score-item">
-        <div class="score-label">O</div>
+        <div class="score-label">O ${dimNames.O}</div>
         <div class="score-value">${scores.O}</div>
       </div>
       <div class="score-item">
-        <div class="score-label">S</div>
+        <div class="score-label">S ${dimNames.S}</div>
         <div class="score-value">${scores.S}</div>
       </div>
       <div class="score-item">
-        <div class="score-label">N</div>
+        <div class="score-label">N ${dimNames.N}</div>
         <div class="score-value">${scores.N}</div>
       </div>
       <div class="score-item">
-        <div class="score-label">F</div>
+        <div class="score-label">F ${dimNames.F}</div>
         <div class="score-value">${scores.F}</div>
       </div>
       <div class="score-item">
-        <div class="score-label">P</div>
+        <div class="score-label">P ${dimNames.P}</div>
         <div class="score-value">${scores.P}</div>
       </div>
       <div class="score-item">
-        <div class="score-label">A</div>
+        <div class="score-label">A ${dimNames.A}</div>
         <div class="score-value">${scores.A}</div>
       </div>
     `;
   } else {
+    const dimL = result.dimensions.LvsD;
+    const dimO = result.dimensions.OvsS;
+    const dimN = result.dimensions.NvsF;
+    const dimP = result.dimensions.PvsA;
     html = `
       <div class="score-item">
-        <div class="score-label">${result.dimensions.LvsD}</div>
+        <div class="score-label">${dimL} ${dimNames[dimL]}</div>
         <div class="score-value">${Math.max(scores.L, scores.D)}</div>
       </div>
       <div class="score-item">
-        <div class="score-label">${result.dimensions.OvsS}</div>
+        <div class="score-label">${dimO} ${dimNames[dimO]}</div>
         <div class="score-value">${Math.max(scores.O, scores.S)}</div>
       </div>
       <div class="score-item">
-        <div class="score-label">${result.dimensions.NvsF}</div>
+        <div class="score-label">${dimN} ${dimNames[dimN]}</div>
         <div class="score-value">${Math.max(scores.N, scores.F)}</div>
       </div>
       <div class="score-item">
-        <div class="score-label">${result.dimensions.PvsA}</div>
+        <div class="score-label">${dimP} ${dimNames[dimP]}</div>
         <div class="score-value">${Math.max(scores.P, scores.A)}</div>
       </div>
     `;

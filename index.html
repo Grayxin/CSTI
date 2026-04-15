@@ -11,15 +11,21 @@
   <div class="app-container">
     <!-- 首页视图 -->
     <div id="home" class="view active">
-      <div class="mountain-bg"></div>
-      <div class="mountain-bg mountain-2"></div>
-      <div class="mountain-bg mountain-3"></div>
+      <!-- 落日 -->
+      <div class="sun"></div>
+      <!-- 群山背景（三层） -->
+      <div class="mountain-bg mountain-far"></div>
+      <div class="mountain-bg mountain-mid"></div>
+      <div class="mountain-bg mountain-near"></div>
+      <!-- 前景地平线 -->
+      <div class="horizon"></div>
+      <!-- 内容区域 -->
       <div class="home-content">
         <h1 class="home-title">CSTI</h1>
         <p class="home-subtitle">公务员性格测试</p>
         <p class="home-desc">究竟是天选卷王还是摸鱼刺客？<br>精准测算你的体制内生存段位<br>测测你背锅的姿势有多优雅</p>
         <button class="start-btn" onclick="startQuiz()">
-          <span>开始测试</span>
+          开始测试 <span class="arrow">→</span>
         </button>
       </div>
       <div class="home-footer">

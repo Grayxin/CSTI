@@ -32,7 +32,7 @@ html {
   font-size: 16px;
 }
 
-/* 全屏背景（PC端桌面体验 - 温暖的夕阳/破晓色调） */
+/* 全屏背景（PC端桌面体验 - 落日暖色调） */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
@@ -40,8 +40,8 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
-  /* 温暖的暗色调：夕阳余晖质感，深紫红向暖琥珀再向深蓝渐变 */
-  background: linear-gradient(135deg, #1a1420 0%, #2d1f3d 15%, #3d2952 30%, #4a3360 45%, #2a2a4e 65%, #1a1a2e 80%, #16213e 100%);
+  /* 落日暖色调：深红棕色向暖橙色渐变 */
+  background: linear-gradient(to bottom, #4a2c2a 0%, #6b4423 25%, #8b5a2b 50%, #c97a3d 75%, #e89545 100%);
   background-attachment: fixed;
 }
 
@@ -102,17 +102,24 @@ body {
 /* 减少动画偏好 */
 @media (prefers-reduced-motion: reduce) {
   .fade-in,
-  .fade-out {
+  .fade-out,
+  .character-img {
     animation: none;
+  }
+  .start-btn,
+  .start-btn .arrow,
+  .sun {
+    transition: none;
   }
   * {
     transition: none !important;
   }
 }
 
-/* ========== 首页样式 ========== */
+/* ========== 首页样式 - 扁平插画风落日群山 ========== */
 #home {
-  background: linear-gradient(135deg, #2d1f3d 0%, #3d2952 25%, #4a3360 50%, #2a2a4e 75%, #1a1a2e 100%);
+  /* 天空背景：从深红棕色（顶）到暖橙色（底） */
+  background: linear-gradient(to bottom, #4a2c2a 0%, #6b4423 25%, #8b5a2b 50%, #c97a3d 75%, #e89545 100%);
   color: var(--text-light);
   flex-direction: column;
   justify-content: center;
@@ -121,135 +128,195 @@ body {
   overflow: hidden;
 }
 
-/* 山峰背景（优化为卡片内装饰 - 暖色调版本） */
+/* 落日 - 圆形太阳带多层外发光 */
+.sun {
+  position: absolute;
+  bottom: 38%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, #fff7e0 0%, #ffd93d 40%, #f9a825 100%);
+  border-radius: 50%;
+  z-index: 1;
+  /* 多层半透明外发光 */
+  box-shadow:
+    0 0 30px 15px rgba(255, 217, 61, 0.4),
+    0 0 60px 30px rgba(249, 168, 37, 0.25),
+    0 0 100px 50px rgba(201, 122, 61, 0.15);
+}
+
+/* 群山基础样式 */
 .mountain-bg {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 35%;
-  background: linear-gradient(to top, rgba(74, 51, 96, 0.85), rgba(74, 51, 96, 0.35));
-  clip-path: polygon(
-    0% 100%,
-    5% 60%,
-    15% 80%,
-    25% 50%,
-    35% 70%,
-    45% 30%,
-    55% 55%,
-    65% 40%,
-    75% 65%,
-    85% 45%,
-    95% 75%,
-    100% 100%
-  );
-  z-index: 1;
-}
-
-.mountain-2 {
-  height: 28%;
-  background: linear-gradient(to top, rgba(58, 41, 82, 0.9), rgba(58, 41, 82, 0.4));
-  clip-path: polygon(
-    0% 100%,
-    10% 70%,
-    20% 85%,
-    30% 55%,
-    40% 75%,
-    50% 35%,
-    60% 60%,
-    70% 45%,
-    80% 70%,
-    90% 50%,
-    100% 100%
-  );
   z-index: 2;
 }
 
-.mountain-3 {
-  height: 20%;
-  background: linear-gradient(to top, rgba(45, 31, 61, 0.95), rgba(45, 31, 61, 0.5));
+/* 远山 - 最浅灰，最高，最远 */
+.mountain-far {
+  height: 42%;
+  background: #7a7a7a;
+  /* 尖锐硬朗的山峰形状 */
   clip-path: polygon(
     0% 100%,
-    8% 75%,
-    18% 90%,
-    28% 65%,
-    38% 80%,
-    48% 45%,
-    58% 70%,
-    68% 55%,
-    78% 80%,
-    88% 60%,
+    8% 55%,
+    16% 70%,
+    24% 40%,
+    32% 58%,
+    40% 28%,
+    48% 50%,
+    56% 35%,
+    64% 55%,
+    72% 30%,
+    80% 48%,
+    88% 25%,
+    96% 55%,
+    100% 100%
+  );
+}
+
+/* 中山 - 中灰，中等高度 */
+.mountain-mid {
+  height: 35%;
+  background: #5a5a5a;
+  clip-path: polygon(
+    0% 100%,
+    5% 60%,
+    12% 75%,
+    18% 45%,
+    26% 62%,
+    34% 32%,
+    42% 52%,
+    50% 38%,
+    58% 58%,
+    66% 28%,
+    74% 50%,
+    82% 35%,
+    90% 55%,
     100% 100%
   );
   z-index: 3;
 }
 
+/* 近山 - 最深灰，最矮，最近 */
+.mountain-near {
+  height: 28%;
+  background: #3a3a3a;
+  clip-path: polygon(
+    0% 100%,
+    10% 65%,
+    20% 80%,
+    28% 50%,
+    36% 68%,
+    44% 38%,
+    52% 58%,
+    60% 42%,
+    68% 62%,
+    76% 35%,
+    84% 55%,
+    92% 40%,
+    100% 100%
+  );
+  z-index: 4;
+}
+
+/* 前景地平线 - 亮橙色扁平色块 */
+.horizon {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8%;
+  background: #c55a11;
+  z-index: 5;
+}
+
+/* 内容区域 */
 .home-content {
   text-align: center;
   padding: 40px 20px;
   z-index: 10;
-  /* 确保内容水平居中 */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
+/* 主标题 - 轻盈精致，有呼吸感 */
 .home-title {
-  font-size: 3rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  margin-bottom: 8px;
-  color: var(--primary-orange);
+  font-size: 4.5rem;
+  font-weight: 650;
+  letter-spacing: 6px;
+  margin-bottom: 12px;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* 副标题 - 加粗加白，醒目 */
 .home-subtitle {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: var(--text-light-secondary);
-  margin-bottom: 24px;
-}
-
-.home-desc {
-  font-size: 0.9375rem;
-  line-height: 1.8;
-  color: var(--text-light-secondary);
-  margin-bottom: 40px;
-  max-width: 280px;
-}
-
-/* 开始按钮 - 绝对水平居中 */
-.start-btn {
-  background: linear-gradient(135deg, var(--primary-orange), var(--primary-orange-dark));
-  color: var(--text-light);
-  border: none;
-  padding: 16px 48px;
   font-size: 1.125rem;
-  font-weight: 600;
-  border-radius: var(--border-radius);
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 40px;
+  letter-spacing: 0.03em;
+}
+
+/* 描述文字 - 清晰易读，带阴影 */
+.home-desc {
+  font-size: 0.875rem;
+  line-height: 2;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 36px;
+  max-width: 300px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* 开始按钮 - 胶囊形白色 */
+.start-btn {
+  background: #ffffff;
+  color: #e67e22;
+  border: none;
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 50px;
   cursor: pointer;
-  transition: var(--transition-base);
-  box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
-  min-height: 56px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 柔和的外发光阴影 */
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.25), 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 确保按钮本身居中 */
+  gap: 8px;
   margin: 0 auto;
 }
 
+.start-btn .arrow {
+  font-size: 1.125rem;
+  transition: transform 0.3s ease;
+}
+
 .start-btn:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 20px rgba(243, 156, 18, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 6px 30px rgba(255, 255, 255, 0.35), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.start-btn:hover .arrow {
+  transform: translateX(3px);
 }
 
 .start-btn:active {
   transform: scale(0.98);
 }
 
+/* 底部提示 */
 .home-footer {
   position: absolute;
-  bottom: 20px;
+  bottom: 12%;
   left: 0;
   right: 0;
   text-align: center;
@@ -258,7 +325,7 @@ body {
 
 .home-footer p {
   font-size: 0.75rem;
-  color: var(--text-light-secondary);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* ========== 答题页样式 ========== */
@@ -475,17 +542,19 @@ body {
 }
 
 .result-title {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 3rem;
+  font-weight: 800;
   color: var(--text-dark);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
 }
 
 .result-code {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--primary-orange);
-  letter-spacing: 0.05em;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-orange-dark);
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
 }
 
 .result-desc {
@@ -520,9 +589,9 @@ body {
 }
 
 .score-label {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 4px;
 }
 
@@ -570,35 +639,62 @@ body {
     overflow: hidden;
   }
 
-  /* 首页内部保持原有深色背景 */
+  /* 首页圆角处理 */
   #home {
     border-radius: 24px 24px 0 0;
   }
 
-  /* 山峰背景在PC端缩小比例，更精致 */
-  .mountain-bg {
-    height: 25%;
+  /* 落日在PC端更大 */
+  .sun {
+    width: 100px;
+    height: 100px;
+    bottom: 40%;
   }
 
-  .mountain-2 {
-    height: 18%;
+  /* 山峰在PC端比例调整 */
+  .mountain-far {
+    height: 35%;
   }
 
-  .mountain-3 {
-    height: 12%;
+  .mountain-mid {
+    height: 28%;
+  }
+
+  .mountain-near {
+    height: 22%;
+  }
+
+  /* 地平线在PC端 */
+  .horizon {
+    height: 6%;
   }
 
   .home-content {
     padding: 60px 40px;
   }
 
+  /* PC端主标题更大 */
   .home-title {
-    font-size: 4rem;
+    font-size: 6rem;
+  }
+
+  .home-subtitle {
+    font-size: 1.5rem;
   }
 
   .home-desc {
     max-width: 400px;
     font-size: 1rem;
+  }
+
+  .start-btn {
+    padding: 16px 36px;
+    font-size: 1.0625rem;
+    min-height: 52px;
+  }
+
+  .home-footer {
+    bottom: 10%;
   }
 
   /* 答题页样式增强 */
@@ -700,8 +796,14 @@ body {
     padding: 80px 60px;
   }
 
+  /* 大屏幕主标题极醒目 */
   .home-title {
-    font-size: 5rem;
+    font-size: 8rem;
+  }
+
+  .sun {
+    width: 120px;
+    height: 120px;
   }
 
   .quiz-card {
